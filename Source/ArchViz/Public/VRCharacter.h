@@ -25,6 +25,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCameraComponent* CameraComp;
 
+	class USceneComponent* VRRoot;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
