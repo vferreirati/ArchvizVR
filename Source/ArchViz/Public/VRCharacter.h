@@ -25,6 +25,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCameraComponent* CameraComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USceneComponent* VRRoot;
 
 protected:

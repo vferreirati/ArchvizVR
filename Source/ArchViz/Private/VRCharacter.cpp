@@ -3,6 +3,8 @@
 #include "VRCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 
 
 // Sets default values
@@ -11,8 +13,11 @@ AVRCharacter::AVRCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin()
+
 	VRRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VRRoot"));
-	VRRoot->SetupAttachment(GetRootComponent());
+	VRRoot->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * -1));
+	VRRoot->SetupAttachment(GetRootComponent());	
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(VRRoot);
