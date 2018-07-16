@@ -28,6 +28,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USceneComponent* VRRoot;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UStaticMeshComponent* DestinationMarker;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	float TeleportRange;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,4 +42,6 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	
+
+	void UpdateDestinationMarker();
 };

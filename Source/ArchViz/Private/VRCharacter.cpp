@@ -4,7 +4,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
+#include "Components/StaticMeshComponent.h"
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values
@@ -13,14 +14,17 @@ AVRCharacter::AVRCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin()
-
 	VRRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VRRoot"));
-	VRRoot->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * -1));
+	VRRoot->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * -1 + 2.f));
 	VRRoot->SetupAttachment(GetRootComponent());	
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(VRRoot);
+
+	DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DestinationMarker"));
+	DestinationMarker->SetupAttachment(GetRootComponent());
+
+	TeleportRange = 1000.f;
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +43,8 @@ void AVRCharacter::Tick(float DeltaTime)
 	NewCameraOffset.Z = 0.f;
 	AddActorWorldOffset(NewCameraOffset);
 	VRRoot->AddWorldOffset(-NewCameraOffset);
+
+	UpdateDestinationMarker();
 }
 
 // Called to bind functionality to input
@@ -57,4 +63,18 @@ void AVRCharacter::MoveForward(float Value) {
 
 void AVRCharacter::MoveRight(float Value) {
 	AddMovementInput(CameraComp->GetRightVector(), Value);
+}
+
+void AVRCharacter::UpdateDestinationMarker() {
+
+	FVector TraceStart = CameraComp->GetComponentLocation();
+	FRotator CameraRotation = CameraComp->GetComponentRotation();
+	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TeleportRange);
+
+	FHitResult HitResult;
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+	if (bSuccess) {
+		DestinationMarker->SetWorldLocation(HitResult.Location);
+	}
 }
