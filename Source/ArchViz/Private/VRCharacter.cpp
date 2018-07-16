@@ -22,7 +22,9 @@ AVRCharacter::AVRCharacter()
 	CameraComp->SetupAttachment(VRRoot);
 
 	DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DestinationMarker"));
+	DestinationMarker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DestinationMarker->SetupAttachment(GetRootComponent());
+	DestinationMarker->SetVisibility(false);
 
 	TeleportRange = 1000.f;
 }
@@ -77,4 +79,6 @@ void AVRCharacter::UpdateDestinationMarker() {
 	if (bSuccess) {
 		DestinationMarker->SetWorldLocation(HitResult.Location);
 	}
+
+	DestinationMarker->SetVisibility(bSuccess);
 }
