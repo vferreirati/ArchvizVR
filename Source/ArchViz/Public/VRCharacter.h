@@ -34,6 +34,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportRange;
 
+	FTimerHandle TimerHandle_TeleportFade;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	float TeleportFadeDuration;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,6 +47,9 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	
+	// Teleport bind function
+	void BeginTeleport();
+	void EndTeleport();
 
 	void UpdateDestinationMarker();
 };

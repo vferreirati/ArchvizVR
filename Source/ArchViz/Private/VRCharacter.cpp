@@ -2,10 +2,12 @@
 
 #include "VRCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "DrawDebugHelpers.h"
+#include "GameFramework/PlayerController.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -27,6 +29,7 @@ AVRCharacter::AVRCharacter()
 	DestinationMarker->SetVisibility(false);
 
 	TeleportRange = 1000.f;
+	TeleportFadeDuration = 0.5f;
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +60,9 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	// Movement Input Binding
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
+
+	// Teleport input binding
+	PlayerInputComponent->BindAction("Teleport", IE_Released, this, &AVRCharacter::BeginTeleport);
 }
 
 void AVRCharacter::MoveForward(float Value) {
@@ -65,6 +71,34 @@ void AVRCharacter::MoveForward(float Value) {
 
 void AVRCharacter::MoveRight(float Value) {
 	AddMovementInput(CameraComp->GetRightVector(), Value);
+}
+
+void AVRCharacter::BeginTeleport() {
+	// Set timer to teleport
+	GetWorldTimerManager().SetTimer(TimerHandle_TeleportFade, this, &AVRCharacter::EndTeleport, TeleportFadeDuration);
+
+	// Fade camera
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		PC->PlayerCameraManager->StartCameraFade(0.f, 1.f, TeleportFadeDuration, FLinearColor::Black, false, true);
+	}
+}
+
+void AVRCharacter::EndTeleport() {
+	FVector NewLocation = DestinationMarker->GetComponentLocation();
+	float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+	// Update the Z value to pop the player off the ground
+	NewLocation.Z += CapsuleHalfHeight + 2;
+	
+	// Teleport the Player
+	SetActorLocation(NewLocation);
+
+	// Fade the camera back
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		PC->PlayerCameraManager->StopCameraFade();
+	}
 }
 
 void AVRCharacter::UpdateDestinationMarker() {
