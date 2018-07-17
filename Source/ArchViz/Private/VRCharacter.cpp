@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "AI/Navigation/NavigationSystem.h"
 #include "TimerManager.h"
 
 
@@ -102,6 +103,18 @@ void AVRCharacter::EndTeleport() {
 }
 
 void AVRCharacter::UpdateDestinationMarker() {
+	
+	FVector Location;
+	bool bHasDestination = FindTeleportDestination(Location);
+	if (bHasDestination) {
+
+		DestinationMarker->SetWorldLocation(Location);	
+	}
+
+	DestinationMarker->SetVisibility(bHasDestination);
+}
+
+void AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 
 	FVector TraceStart = CameraComp->GetComponentLocation();
 	FRotator CameraRotation = CameraComp->GetComponentRotation();
@@ -109,10 +122,12 @@ void AVRCharacter::UpdateDestinationMarker() {
 
 	FHitResult HitResult;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+	if (!bSuccess) return false;
 
-	if (bSuccess) {
-		DestinationMarker->SetWorldLocation(HitResult.Location);
-	}
+	FNavLocation NavLocation;
+	bool bOnNavMeshHit = GetWorld()->GetNavigationSystem()->ProjectPointToNavigation(HitResult.Location, NavLocation);
+	if (!bOnNavMeshHit) return false;
 
-	DestinationMarker->SetVisibility(bSuccess);
+	OutLocation = NavLocation.Location;
+	return true;
 }

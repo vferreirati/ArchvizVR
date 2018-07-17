@@ -51,5 +51,8 @@ protected:
 	void BeginTeleport();
 	void EndTeleport();
 
+	// Find the teleport destination based on where the player is looking at
+	bool FindTeleportDestination(FVector& OutLocation);
+
 	void UpdateDestinationMarker();
 };
