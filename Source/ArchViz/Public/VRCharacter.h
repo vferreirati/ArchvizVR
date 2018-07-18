@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UStaticMeshComponent* DestinationMarker;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UPostProcessComponent* PostProcessComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportRange;
 
@@ -38,6 +41,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportFadeDuration;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	class UMaterialInterface* BlinkerMaterialParent;
+
+	class UMaterialInstanceDynamic* BlinkerMaterialInstance;
 
 protected:
 	// Called when the game starts or when spawned

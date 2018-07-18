@@ -9,6 +9,8 @@
 #include "GameFramework/PlayerController.h"
 #include "AI/Navigation/NavigationSystem.h"
 #include "TimerManager.h"
+#include "Components/PostProcessComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 // Sets default values
@@ -29,6 +31,9 @@ AVRCharacter::AVRCharacter()
 	DestinationMarker->SetupAttachment(GetRootComponent());
 	DestinationMarker->SetVisibility(false);
 
+	PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComp"));
+	PostProcessComp->SetupAttachment(GetRootComponent());
+
 	TeleportRange = 1000.f;
 	TeleportFadeDuration = 0.5f;
 }
@@ -37,7 +42,14 @@ AVRCharacter::AVRCharacter()
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DestinationMarker->SetVisibility(false);
 	
+	if (BlinkerMaterialParent) {
+		BlinkerMaterialInstance = UMaterialInstanceDynamic::Create(BlinkerMaterialParent, this);
+		BlinkerMaterialInstance->SetScalarParameterValue("RadiusParam", 0.5f);
+		PostProcessComp->AddOrUpdateBlendable(BlinkerMaterialInstance);
+	}
 }
 
 // Called every frame
@@ -114,7 +126,7 @@ void AVRCharacter::UpdateDestinationMarker() {
 	DestinationMarker->SetVisibility(bHasDestination);
 }
 
-void AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
+bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 
 	FVector TraceStart = CameraComp->GetComponentLocation();
 	FRotator CameraRotation = CameraComp->GetComponentRotation();
