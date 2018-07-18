@@ -42,12 +42,9 @@ AVRCharacter::AVRCharacter()
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	DestinationMarker->SetVisibility(false);
 	
 	if (BlinkerMaterialParent) {
 		BlinkerMaterialInstance = UMaterialInstanceDynamic::Create(BlinkerMaterialParent, this);
-		BlinkerMaterialInstance->SetScalarParameterValue("RadiusParam", 0.5f);
 		PostProcessComp->AddOrUpdateBlendable(BlinkerMaterialInstance);
 	}
 }
@@ -63,6 +60,7 @@ void AVRCharacter::Tick(float DeltaTime)
 	VRRoot->AddWorldOffset(-NewCameraOffset);
 
 	UpdateDestinationMarker();
+	UpdateBlinkers();
 }
 
 // Called to bind functionality to input
@@ -142,4 +140,13 @@ bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 
 	OutLocation = NavLocation.Location;
 	return true;
+}
+
+void AVRCharacter::UpdateBlinkers() {
+	
+	if (RadiusVsVelocityCurve) {
+		float Speed = GetVelocity().Size();
+		float RadiusValue = RadiusVsVelocityCurve->GetFloatValue(Speed);
+		BlinkerMaterialInstance->SetScalarParameterValue("RadiusParam", RadiusValue);
+	}
 }

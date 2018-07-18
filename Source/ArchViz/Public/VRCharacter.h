@@ -47,6 +47,9 @@ protected:
 
 	class UMaterialInstanceDynamic* BlinkerMaterialInstance;
 
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	class UCurveFloat* RadiusVsVelocityCurve;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,5 +65,9 @@ protected:
 	// Find the teleport destination based on where the player is looking at
 	bool FindTeleportDestination(FVector& OutLocation);
 
+	// Updates the destination marker position
 	void UpdateDestinationMarker();
+
+	// Updates the radius of the blinkers
+	void UpdateBlinkers();
 };
