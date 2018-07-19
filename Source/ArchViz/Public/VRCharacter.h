@@ -41,7 +41,13 @@ protected:
 	class UMotionControllerComponent* MotionControllerRight;
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
-	float TeleportRange;
+	float TeleportProjectileRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	float TeleportProjectileSpeed;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	float TeleportSimulationTime;
 
 	FTimerHandle TimerHandle_TeleportFade;
 

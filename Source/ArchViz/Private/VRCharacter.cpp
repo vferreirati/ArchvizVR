@@ -12,6 +12,7 @@
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MotionControllerComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -45,7 +46,9 @@ AVRCharacter::AVRCharacter()
 	PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComp"));
 	PostProcessComp->SetupAttachment(GetRootComponent());
 
-	TeleportRange = 1000.f;
+	TeleportProjectileRadius = 10;
+	TeleportProjectileSpeed = 800;
+	TeleportSimulationTime = 1;
 	TeleportFadeDuration = 0.5f;
 }
 
@@ -138,17 +141,16 @@ void AVRCharacter::UpdateDestinationMarker() {
 bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 
 	FVector TraceStart = MotionControllerLeft->GetComponentLocation();
-	FVector LookVector = MotionControllerLeft->GetForwardVector();
-	LookVector = LookVector.RotateAngleAxis(30, MotionControllerLeft->GetRightVector());
+	FVector LaunchVelocity = MotionControllerLeft->GetForwardVector() * TeleportProjectileSpeed;
 
-	FVector TraceEnd = TraceStart + LookVector * TeleportRange;
-
-	FHitResult HitResult;
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+	FPredictProjectilePathResult PredictResult;
+	FPredictProjectilePathParams PredictParams(TeleportProjectileRadius, TraceStart, LaunchVelocity, TeleportSimulationTime, ECC_Visibility, this);
+	PredictParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
+	bool bSuccess = UGameplayStatics::PredictProjectilePath(this, PredictParams, PredictResult);
 	if (!bSuccess) return false;
 
 	FNavLocation NavLocation;
-	bool bOnNavMeshHit = GetWorld()->GetNavigationSystem()->ProjectPointToNavigation(HitResult.Location, NavLocation);
+	bool bOnNavMeshHit = GetWorld()->GetNavigationSystem()->ProjectPointToNavigation(PredictResult.HitResult.Location, NavLocation);
 	if (!bOnNavMeshHit) return false;
 
 	OutLocation = NavLocation.Location;
