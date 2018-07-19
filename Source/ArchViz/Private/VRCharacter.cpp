@@ -138,7 +138,7 @@ void AVRCharacter::UpdateDestinationMarker() {
 	if (bHasDestination) {
 
 		DestinationMarker->SetWorldLocation(Location);	
-		UpdateSpline(Path);
+		DrawTeleportPath(Path);
 	}
 
 	DestinationMarker->SetVisibility(bHasDestination);
@@ -182,12 +182,36 @@ void AVRCharacter::UpdateBlinkers() {
 
 void AVRCharacter::UpdateSpline(const TArray<FVector> &Path) {
 	SplineComp->ClearSplinePoints(false);
-	
+
 	for (FVector Current : Path) {
-		SplineComp->AddSplinePoint(Current, ESplineCoordinateSpace::World, false);
+		SplineComp->AddSplinePoint(Current, ESplineCoordinateSpace::World, false);	
 	}
 
 	SplineComp->UpdateSpline();
+}
+
+void AVRCharacter::DrawTeleportPath(const TArray<FVector> &Path) {
+	UpdateSpline(Path);
+	
+	int32 Counter = 0;
+	for (FVector Current : Path) {
+
+		// If the Pool is empty OR the Counter is equal to the Number of objects in the pool
+		// A new object needs to be created
+		if (TeleportPathMeshPool.Num() == 0 || Counter >= TeleportPathMeshPool.Num()) {
+			UStaticMeshComponent* NewComp = NewObject<UStaticMeshComponent>(this);
+			NewComp->SetStaticMesh(TeleportArcMesh);
+			NewComp->SetMaterial(0, TeleportArcMaterial);
+			NewComp->RegisterComponent();
+
+			TeleportPathMeshPool.Add(NewComp);
+		}
+		
+		UStaticMeshComponent* NewComp = TeleportPathMeshPool[Counter];
+		NewComp->SetWorldLocation(Current);
+
+		Counter++;
+	}
 }
 
 FVector2D AVRCharacter::GetBlinkerCenter() {

@@ -65,6 +65,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	class UCurveFloat* RadiusVsVelocityCurve;
 
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	class UStaticMesh* TeleportArcMesh;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	class UMaterialInterface* TeleportArcMaterial;
+
+	TArray<class UStaticMeshComponent*> TeleportPathMeshPool;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -88,6 +96,9 @@ protected:
 
 	// Updates the Arc of the Spline Component
 	void UpdateSpline(const TArray<FVector> &Path);
+
+	// Draws the teleport arc using the ObjectPool
+	void DrawTeleportPath(const TArray<FVector> &Path);
 
 	// Calculates the center of motion
 	FVector2D GetBlinkerCenter();
