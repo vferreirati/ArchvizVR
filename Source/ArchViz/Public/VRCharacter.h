@@ -34,6 +34,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UPostProcessComponent* PostProcessComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UMotionControllerComponent* MotionControllerLeft;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UMotionControllerComponent* MotionControllerRight;
+
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportRange;
 

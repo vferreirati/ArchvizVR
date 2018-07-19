@@ -11,6 +11,7 @@
 #include "TimerManager.h"
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "MotionControllerComponent.h"
 
 
 // Sets default values
@@ -25,6 +26,16 @@ AVRCharacter::AVRCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(VRRoot);
+
+	MotionControllerLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerLeft"));
+	MotionControllerLeft->SetTrackingSource(EControllerHand::Left);	
+	MotionControllerLeft->bDisplayDeviceModel = true;
+	MotionControllerLeft->SetupAttachment(VRRoot);
+
+	MotionControllerRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerRight"));
+	MotionControllerRight->SetTrackingSource(EControllerHand::Right);
+	MotionControllerRight->bDisplayDeviceModel = true;
+	MotionControllerRight->SetupAttachment(VRRoot);
 
 	DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DestinationMarker"));
 	DestinationMarker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -126,9 +137,11 @@ void AVRCharacter::UpdateDestinationMarker() {
 
 bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 
-	FVector TraceStart = CameraComp->GetComponentLocation();
-	FRotator CameraRotation = CameraComp->GetComponentRotation();
-	FVector TraceEnd = TraceStart + (CameraRotation.Vector() * TeleportRange);
+	FVector TraceStart = MotionControllerLeft->GetComponentLocation();
+	FVector LookVector = MotionControllerLeft->GetForwardVector();
+	LookVector = LookVector.RotateAngleAxis(30, MotionControllerLeft->GetRightVector());
+
+	FVector TraceEnd = TraceStart + LookVector * TeleportRange;
 
 	FHitResult HitResult;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
