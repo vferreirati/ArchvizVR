@@ -70,4 +70,7 @@ protected:
 
 	// Updates the radius of the blinkers
 	void UpdateBlinkers();
+
+	// Calculates the center of motion
+	FVector2D GetBlinkerCenter();
 };
