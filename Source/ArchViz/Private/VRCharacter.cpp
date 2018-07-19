@@ -13,6 +13,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MotionControllerComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SplineComponent.h"
 
 
 // Sets default values
@@ -37,6 +38,9 @@ AVRCharacter::AVRCharacter()
 	MotionControllerRight->SetTrackingSource(EControllerHand::Right);
 	MotionControllerRight->bDisplayDeviceModel = true;
 	MotionControllerRight->SetupAttachment(VRRoot);
+
+	SplineComp = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComp"));
+	SplineComp->SetupAttachment(MotionControllerLeft);
 
 	DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DestinationMarker"));
 	DestinationMarker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -128,17 +132,19 @@ void AVRCharacter::EndTeleport() {
 
 void AVRCharacter::UpdateDestinationMarker() {
 	
+	TArray<FVector> Path;
 	FVector Location;
-	bool bHasDestination = FindTeleportDestination(Location);
+	bool bHasDestination = FindTeleportDestination(Path, Location);
 	if (bHasDestination) {
 
 		DestinationMarker->SetWorldLocation(Location);	
+		UpdateSpline(Path);
 	}
 
 	DestinationMarker->SetVisibility(bHasDestination);
 }
 
-bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
+bool AVRCharacter::FindTeleportDestination(TArray<FVector> &OutPath, FVector& OutLocation) {
 
 	FVector TraceStart = MotionControllerLeft->GetComponentLocation();
 	FVector LaunchVelocity = MotionControllerLeft->GetForwardVector() * TeleportProjectileSpeed;
@@ -148,6 +154,11 @@ bool AVRCharacter::FindTeleportDestination(FVector& OutLocation) {
 	PredictParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
 	bool bSuccess = UGameplayStatics::PredictProjectilePath(this, PredictParams, PredictResult);
 	if (!bSuccess) return false;
+
+	// Iterate over the PredictResult Path and populate the OutPath Param
+	for (FPredictProjectilePathPointData CurrentPathPoint : PredictResult.PathData) {
+		OutPath.Add(CurrentPathPoint.Location);
+	}
 
 	FNavLocation NavLocation;
 	bool bOnNavMeshHit = GetWorld()->GetNavigationSystem()->ProjectPointToNavigation(PredictResult.HitResult.Location, NavLocation);
@@ -167,6 +178,16 @@ void AVRCharacter::UpdateBlinkers() {
 		FVector2D BlinkerCenter = GetBlinkerCenter();
 		BlinkerMaterialInstance->SetVectorParameterValue("CenterParam", FLinearColor(BlinkerCenter.X, BlinkerCenter.Y, 0.f));
 	}
+}
+
+void AVRCharacter::UpdateSpline(const TArray<FVector> &Path) {
+	SplineComp->ClearSplinePoints(false);
+	
+	for (FVector Current : Path) {
+		SplineComp->AddSplinePoint(Current, ESplineCoordinateSpace::World, false);
+	}
+
+	SplineComp->UpdateSpline();
 }
 
 FVector2D AVRCharacter::GetBlinkerCenter() {

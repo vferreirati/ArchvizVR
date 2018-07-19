@@ -40,6 +40,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UMotionControllerComponent* MotionControllerRight;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USplineComponent* SplineComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportProjectileRadius;
 
@@ -74,14 +77,17 @@ protected:
 	void BeginTeleport();
 	void EndTeleport();
 
-	// Find the teleport destination based on where the player is looking at
-	bool FindTeleportDestination(FVector& OutLocation);
+	// Find the teleport destination based on the MotionController
+	bool FindTeleportDestination(TArray<FVector>& OutPath, FVector& OutLocation);
 
 	// Updates the destination marker position
 	void UpdateDestinationMarker();
 
 	// Updates the radius of the blinkers
 	void UpdateBlinkers();
+
+	// Updates the Arc of the Spline Component
+	void UpdateSpline(const TArray<FVector> &Path);
 
 	// Calculates the center of motion
 	FVector2D GetBlinkerCenter();
