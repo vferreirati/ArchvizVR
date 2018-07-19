@@ -71,7 +71,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	class UMaterialInterface* TeleportArcMaterial;
 
-	TArray<class UStaticMeshComponent*> TeleportPathMeshPool;
+	TArray<class USplineMeshComponent*> TeleportPathMeshPool;
 
 protected:
 	// Called when the game starts or when spawned
@@ -102,4 +102,6 @@ protected:
 
 	// Calculates the center of motion
 	FVector2D GetBlinkerCenter();
+
+	void HideSplineMeshes();
 };
