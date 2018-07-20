@@ -84,9 +84,15 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	
-	// Teleport bind function
+	// Teleport bind functions
 	void BeginTeleport();
 	void EndTeleport();
+
+	// Grip bind functions
+	void GripLeft();
+	void ReleaseLeft();
+	void GripRight();
+	void ReleaseRight();
 
 	// Find the teleport destination based on the MotionController
 	bool FindTeleportDestination(TArray<FVector>& OutPath, FVector& OutLocation);

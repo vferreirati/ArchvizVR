@@ -15,10 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AHandController();
 
-	void SetHand(EControllerHand Hand);
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void SetHand(EControllerHand Hand);
+
+	void Grip();
+	void Release();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -28,6 +31,10 @@ protected:
 	class UHapticFeedbackEffect_Base* HapticEffect;
 
 	bool bCanClimb;
+
+	bool bIsClimbing;
+
+	FVector ClimbingStartLocation;
 
 	FName ClimbableTag;
 

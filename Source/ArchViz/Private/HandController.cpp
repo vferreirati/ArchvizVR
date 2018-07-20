@@ -27,6 +27,18 @@ void AHandController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsClimbing) {
+		if (AActor* Owner = GetOwner()) {
+			// Get the LocationOffset
+			FVector OffsetLocation = GetActorLocation() - ClimbingStartLocation;
+
+			// Move Player using the movement offset
+			Owner->AddActorWorldOffset(-OffsetLocation);
+
+			// Set the controller back to start location
+			SetActorLocation(ClimbingStartLocation);
+		}
+	}
 }
 
 void AHandController::SetHand(EControllerHand Hand) {
@@ -72,4 +84,21 @@ void AHandController::PlayHapticEffect() {
 			PC->PlayHapticEffect(HapticEffect, MotionController->GetTrackingSource());
 		}
 	}
+}
+
+void AHandController::Grip() {
+	if (!bCanClimb) {
+		return;
+	}
+	
+	// Store the start location
+	ClimbingStartLocation = GetActorLocation();
+
+	// Set that we're climbing
+	bIsClimbing = true;
+}
+
+void AHandController::Release() {
+	// Set that we're not climbing
+	bIsClimbing = false;
 }

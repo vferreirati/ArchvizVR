@@ -100,6 +100,12 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	// Teleport input binding
 	PlayerInputComponent->BindAction("Teleport", IE_Released, this, &AVRCharacter::BeginTeleport);
+
+	// Grip input binding
+	PlayerInputComponent->BindAction("GripLeft", IE_Pressed, this, &AVRCharacter::GripLeft);
+	PlayerInputComponent->BindAction("GripLeft", IE_Released, this, &AVRCharacter::ReleaseLeft);
+	PlayerInputComponent->BindAction("GripRight", IE_Pressed, this, &AVRCharacter::GripRight);
+	PlayerInputComponent->BindAction("GripRight", IE_Released, this, &AVRCharacter::ReleaseRight);
 }
 
 void AVRCharacter::MoveForward(float Value) {
@@ -269,4 +275,20 @@ void AVRCharacter::HideSplineMeshes() {
 	for (USplineMeshComponent* SplineMesh : TeleportPathMeshPool) {
 		SplineMesh->SetVisibility(false);
 	}
+}
+
+void AVRCharacter::GripLeft() {
+	MotionControllerLeft->Grip();
+}
+
+void AVRCharacter::ReleaseLeft() {
+	MotionControllerLeft->Release();
+}
+
+void AVRCharacter::GripRight() {
+	MotionControllerRight->Grip();
+}
+
+void AVRCharacter::ReleaseRight() {
+	MotionControllerRight->Release();
 }
