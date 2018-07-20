@@ -57,14 +57,17 @@ void AVRCharacter::BeginPlay()
 		PostProcessComp->AddOrUpdateBlendable(BlinkerMaterialInstance);
 	}
 	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	if (HandControllerClass) {
-		MotionControllerLeft = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+		MotionControllerLeft = GetWorld()->SpawnActor<AHandController>(HandControllerClass, SpawnParams);
 		if (MotionControllerLeft) {
 			MotionControllerLeft->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 			MotionControllerLeft->SetHand(EControllerHand::Left);
 		}
 
-		MotionControllerRight = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+		MotionControllerRight = GetWorld()->SpawnActor<AHandController>(HandControllerClass, SpawnParams);
 		if (MotionControllerRight) {
 			MotionControllerRight->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 			MotionControllerRight->SetHand(EControllerHand::Right);

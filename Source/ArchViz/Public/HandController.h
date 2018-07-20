@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UMotionControllerComponent* MotionController;
 
+	UPROPERTY(EditDefaultsOnly, Category = "HandController")
+	class UHapticFeedbackEffect_Base* HapticEffect;
+
 	bool bCanClimb;
 
 	FName ClimbableTag;
@@ -33,6 +36,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool CanClimb() const;
+
+	void PlayHapticEffect();
 
 	UFUNCTION()
 	void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
