@@ -35,10 +35,10 @@ protected:
 	class UPostProcessComponent* PostProcessComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UMotionControllerComponent* MotionControllerLeft;
+	class AHandController* MotionControllerLeft;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UMotionControllerComponent* MotionControllerRight;
+	class AHandController* MotionControllerRight;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USplineComponent* SplineComp;
@@ -56,6 +56,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	float TeleportFadeDuration;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
+	TSubclassOf<AHandController> HandControllerClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRCharacter")
 	class UMaterialInterface* BlinkerMaterialParent;
@@ -103,5 +106,6 @@ protected:
 	// Calculates the center of motion
 	FVector2D GetBlinkerCenter();
 
+	// Hides all spline meshes so only the used ones are visible for the player
 	void HideSplineMeshes();
 };

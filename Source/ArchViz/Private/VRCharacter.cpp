@@ -11,10 +11,10 @@
 #include "TimerManager.h"
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "MotionControllerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
+#include "HandController.h"
 
 
 // Sets default values
@@ -30,18 +30,8 @@ AVRCharacter::AVRCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(VRRoot);
 
-	MotionControllerLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerLeft"));
-	MotionControllerLeft->SetTrackingSource(EControllerHand::Left);	
-	MotionControllerLeft->bDisplayDeviceModel = true;
-	MotionControllerLeft->SetupAttachment(VRRoot);
-
-	MotionControllerRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerRight"));
-	MotionControllerRight->SetTrackingSource(EControllerHand::Right);
-	MotionControllerRight->bDisplayDeviceModel = true;
-	MotionControllerRight->SetupAttachment(VRRoot);
-
 	SplineComp = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComp"));
-	SplineComp->SetupAttachment(MotionControllerLeft);
+	SplineComp->SetupAttachment(VRRoot);
 
 	DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DestinationMarker"));
 	DestinationMarker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -65,6 +55,20 @@ void AVRCharacter::BeginPlay()
 	if (BlinkerMaterialParent) {
 		BlinkerMaterialInstance = UMaterialInstanceDynamic::Create(BlinkerMaterialParent, this);
 		PostProcessComp->AddOrUpdateBlendable(BlinkerMaterialInstance);
+	}
+	
+	if (HandControllerClass) {
+		MotionControllerLeft = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+		if (MotionControllerLeft) {
+			MotionControllerLeft->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+			MotionControllerLeft->SetHand(EControllerHand::Left);
+		}
+
+		MotionControllerRight = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+		if (MotionControllerRight) {
+			MotionControllerRight->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+			MotionControllerRight->SetHand(EControllerHand::Right);
+		}
 	}
 }
 
@@ -149,8 +153,8 @@ void AVRCharacter::UpdateDestinationMarker() {
 
 bool AVRCharacter::FindTeleportDestination(TArray<FVector> &OutPath, FVector& OutLocation) {
 
-	FVector TraceStart = MotionControllerLeft->GetComponentLocation();
-	FVector LaunchVelocity = MotionControllerLeft->GetForwardVector() * TeleportProjectileSpeed;
+	FVector TraceStart = MotionControllerLeft->GetActorLocation();
+	FVector LaunchVelocity = MotionControllerLeft->GetActorForwardVector() * TeleportProjectileSpeed;
 
 	FPredictProjectilePathResult PredictResult;
 	FPredictProjectilePathParams PredictParams(TeleportProjectileRadius, TraceStart, LaunchVelocity, TeleportSimulationTime, ECC_Visibility, this);
