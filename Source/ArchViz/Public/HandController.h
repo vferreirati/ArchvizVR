@@ -24,10 +24,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UMotionControllerComponent* MotionController;
 
+	bool bCanClimb;
+
+	FName ClimbableTag;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	
+	bool CanClimb() const;
+
+	UFUNCTION()
+	void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	
 };
