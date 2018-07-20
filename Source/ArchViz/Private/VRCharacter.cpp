@@ -72,6 +72,8 @@ void AVRCharacter::BeginPlay()
 			MotionControllerRight->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 			MotionControllerRight->SetHand(EControllerHand::Right);
 		}
+
+		MotionControllerLeft->PairControllers(MotionControllerRight);
 	}
 }
 

@@ -19,6 +19,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetHand(EControllerHand Hand);
+	void PairControllers(AHandController* Controller);
 
 	void Grip();
 	void Release();
@@ -29,6 +30,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "HandController")
 	class UHapticFeedbackEffect_Base* HapticEffect;
+
+	AHandController* OtherController;
 
 	bool bCanClimb;
 

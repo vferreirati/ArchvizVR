@@ -2,8 +2,9 @@
 
 #include "HandController.h"
 #include "MotionControllerComponent.h"
-#include "VRCharacter.h"
+#include "Gameframework/Character.h"
 #include "Gameframework/PlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AHandController::AHandController()
 {
@@ -13,6 +14,7 @@ AHandController::AHandController()
 	SetRootComponent(MotionController);
 
 	bCanClimb = false;
+	bIsClimbing = false;
 	ClimbableTag = "Climbable";
 }
 
@@ -43,6 +45,11 @@ void AHandController::Tick(float DeltaTime)
 
 void AHandController::SetHand(EControllerHand Hand) {
 	MotionController->SetTrackingSource(Hand);
+}
+
+void AHandController::PairControllers(AHandController* Controller) {
+	OtherController = Controller;
+	OtherController->OtherController = this;
 }
 
 void AHandController::ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) {
@@ -79,7 +86,7 @@ void AHandController::PlayHapticEffect() {
 		return;
 	}
 
-	if (AVRCharacter* Owner = Cast<AVRCharacter>(GetOwner())) {
+	if (ACharacter* Owner = Cast<ACharacter>(GetOwner())) {
 		if (APlayerController* PC = Cast<APlayerController>(Owner->GetController())) {
 			PC->PlayHapticEffect(HapticEffect, MotionController->GetTrackingSource());
 		}
@@ -96,9 +103,23 @@ void AHandController::Grip() {
 
 	// Set that we're climbing
 	bIsClimbing = true;
+
+	OtherController->Release();
+
+	// Update movement mode
+	if (ACharacter* Owner = Cast<ACharacter>(GetOwner())) {
+		Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+	}
 }
 
 void AHandController::Release() {
-	// Set that we're not climbing
-	bIsClimbing = false;
+	if (bIsClimbing) {
+		// Set that we're not climbing
+		bIsClimbing = false;
+
+		// Update movement mode
+		if (ACharacter* Owner = Cast<ACharacter>(GetOwner())) {
+			Owner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		}
+	}
 }
